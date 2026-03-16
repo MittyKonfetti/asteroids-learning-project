@@ -37,10 +37,13 @@ def main():
         screen.fill("black")
         updatable.update(dt)
         for ast in asteroids:
-            if ast.collides_with(player):
-                log_event("player_hit")
-                print("Game Over!")
-                sys.exit()
+            if player.collides_with(ast):
+                if player.boost_timer > 0:
+                    ast.split()
+                else:
+                    log_event("player_hit")
+                    print("Game Over!")
+                    sys.exit()
             for shot in shots:
                 if shot.collides_with(ast):
                     log_event("asteroid_shot")
@@ -51,6 +54,7 @@ def main():
                 log_event("power_boost_gained")
                 print("Power Boost!")
                 p.kill()
+                player.get_boosted()
         for dr in drawable:
             dr.draw(screen)
         pygame.display.flip()
