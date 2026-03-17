@@ -2,12 +2,12 @@ import pygame
 import sys
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 from logger import log_state, log_event
-from player import Player
+from player1 import Player
 from asteroid import Asteroid
 from circleshape import CircleShape
 from asteroidfield import AsteroidField
 from powerups import Powerup
-from shot import Shot
+from shot import Shot, Bomb
 
 
 def main():
@@ -21,13 +21,16 @@ def main():
     asteroids = pygame.sprite.Group()
     powerups = pygame.sprite.Group()
     shots = pygame.sprite.Group()
-    Player.containers = (updatable, drawable)
+    players = pygame.sprite.Group()
+    bombs = pygame.sprite.Group()
+    Player.containers = (updatable, drawable, players)
     Asteroid.containers = (asteroids, updatable, drawable)
     AsteroidField.containers = (updatable)
     Powerup.containers = (updatable, drawable, powerups)
     Shot.containers = (shots, drawable, updatable)
+    Bomb.containers = (bombs, drawable, updatable)
     asteroid_field = AsteroidField()
-    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    player1 = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
     while True:
         log_state()
@@ -37,24 +40,33 @@ def main():
         screen.fill("black")
         updatable.update(dt)
         for ast in asteroids:
-            if player.collides_with(ast):
-                if player.boost_timer > 0:
-                    ast.split()
-                else:
-                    log_event("player_hit")
-                    print("Game Over!")
-                    sys.exit()
+            for player in players:
+                if player.collides_with(ast):
+                    if player.boost_timer > 0:
+                        ast.split()
+                    else:
+                        still_alive = player.handle_collision()
+                        if not still_alive:
+                            log_event("player_hit")
+                            print("Game Over!")
+                            sys.exit()
             for shot in shots:
                 if shot.collides_with(ast):
                     log_event("asteroid_shot")
                     shot.kill()
                     ast.split()
+            for bomb in bombs:
+                if bomb.collides_with(ast):
+                    log_event("asteroid_bombed")
+                    bomb.explodes()
+                    ast.bombed()
         for p in powerups:
-            if p.collides_with(player):
-                log_event("power_boost_gained")
-                print("Power Boost!")
-                p.kill()
-                player.get_boosted()
+            for player in players:
+                if p.collides_with(player):
+                    log_event("power_boost_gained")
+                    print("Power Boost!")
+                    p.kill()
+                    player.get_boosted()
         for dr in drawable:
             dr.draw(screen)
         pygame.display.flip()

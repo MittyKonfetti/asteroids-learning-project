@@ -28,3 +28,7 @@ class Asteroid(CircleShape):
             new_asteroid_two = Asteroid(self.position.x, self.position.y, new_radius)
             new_asteroid_one.velocity = first_vector * 1.2
             new_asteroid_two.velocity = second_vector * 1.2
+
+    def bombed(self):
+        pygame.sprite.Sprite.kill(self)
+        
