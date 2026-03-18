@@ -1,7 +1,7 @@
 import pygame
 import random
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS, SCREEN_HEIGHT, SCREEN_WIDTH, LINE_WIDTH, POWERUP_LIFE_SPAN
+from constants import PLAYER_RADIUS, SCREEN_HEIGHT, SCREEN_WIDTH, POWERUP_LIFE_SPAN
 
 class Powerup(CircleShape):
     def __init__(self, x, y, radius):

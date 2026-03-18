@@ -43,11 +43,11 @@ class Player(CircleShape):
             self.rotate(dt * -1)                    
         if keys[pygame.K_RIGHT]:
             self.rotate(dt)
-        if keys[pygame.K_w]:
+        if keys[pygame.K_q]:
             self.shoot()
         if keys[pygame.K_e]:
             self.bomb()
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_w]:
             self.multi_shot()
         ########### weapon/other cooldown timers below #############    
         if self.cd_timer > 0:
@@ -87,14 +87,12 @@ class Player(CircleShape):
     def multi_shot(self):
         if self.cd_timer <= 0:
             self.cd_timer = PLAYER_SHOOT_COOLDOWN_SECONDS * 5
-            for i in range(5):
-                multi_shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
-                multi_shot.velocity = pygame.Vector2(0, -1).rotate(self.rotation + (i * 72)) * PLAYER_SHOOT_SPEED
+            Shot.multi_shot(self.position, self.rotation)
 
     def bomb(self):
         if self.bomb_cd <= 0:
             self.bomb_cd = BOMB_CD
-            bomb1 = Bomb(self.position.x, self.position.y, BOMB_RADIUS)
+            bomb = Bomb(self.position.x, self.position.y, BOMB_RADIUS, self.rotation)
 
     def get_boosted(self):
         self.boost_timer = BOOST_TIMER
