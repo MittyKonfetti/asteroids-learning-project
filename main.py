@@ -44,7 +44,7 @@ def main():
         for ast in asteroids:
             for player in players:
                 if player.collides_with(ast):
-                    if player.boost_timer > 0:
+                    if player.shield_boost_timer > 0:
                         ast.split()
                     else:
                         still_alive = player.handle_collision()
@@ -66,9 +66,9 @@ def main():
             for player in players:
                 if p.collides_with(player):
                     log_event("power_boost_gained")
-                    print("Power Boost!")
+                    print("Get Boosted!")
+                    player.get_boosted(p.type)
                     p.kill()
-                    player.get_boosted()
         for dr in drawable:
             dr.draw(screen)
             player.player_ui(screen, font)

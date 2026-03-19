@@ -9,9 +9,22 @@ class Powerup(CircleShape):
         self.position = pygame.Vector2(random.uniform(0, SCREEN_WIDTH), random.uniform(0, SCREEN_HEIGHT))
         self.radius = PLAYER_RADIUS / 3
         self.life_span = POWERUP_LIFE_SPAN
+        self.generate = random.randint(1, 4)
+        self.type = ""
 
     def draw(self, screen):
-        pygame.draw.circle(screen, "gold", self.position, self.radius, 0)
+        if self.generate == 1:
+            pygame.draw.circle(screen, "green", self.position, self.radius, 0)
+            self.type = "green"
+        if self.generate == 2:
+            pygame.draw.circle(screen, "red", self.position, self.radius, 0)
+            self.type = "red"
+        if self.generate == 3:
+            pygame.draw.circle(screen, "orange", self.position, self.radius, 0)
+            self.type = "orange"
+        if self.generate == 4:
+            pygame.draw.circle(screen, "white", self.position, self.radius, 0)
+            self.type = "white"
 
     def update(self, dt):
         if self.life_span <= 0:

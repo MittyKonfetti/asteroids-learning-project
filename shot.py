@@ -1,6 +1,6 @@
 import pygame
 from circleshape import CircleShape
-from constants import LINE_WIDTH, BOMB_TIMER, BOMB_RADIUS, BOMB_EXPLOSION_RADIUS, BOMB_EXPLOSION_INCREMENT, SHOT_RADIUS, PLAYER_SHOOT_SPEED, SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import LINE_WIDTH, BOMB_TIMER, BOMB_EXPLOSION_RADIUS, BOOSTED_EXPLOSION_RADIUS, BOMB_EXPLOSION_INCREMENT, SHOT_RADIUS, PLAYER_SHOOT_SPEED
 
 class Shot(CircleShape):
     def __init__(self, x, y, radius):
@@ -18,10 +18,11 @@ class Shot(CircleShape):
             multishot.velocity = pygame.Vector2(0, -1).rotate(rotation + (i * 72)) * PLAYER_SHOOT_SPEED
 
 class Bomb(Shot):
-    def __init__(self, x, y, radius, rotation):
+    def __init__(self, x, y, radius, rotation, boost_status):
         super().__init__(x, y, radius)
         self.timer = BOMB_TIMER
         self.rotation = rotation
+        self.boosted_status = boost_status
         self.explosion_radius = BOMB_EXPLOSION_RADIUS
         self.bomb_trigger = False
 
@@ -42,7 +43,8 @@ class Bomb(Shot):
         ####explosion logic below####
         if self.bomb_trigger == True:
             self.radius += BOMB_EXPLOSION_INCREMENT
-            if self.radius >= BOMB_EXPLOSION_RADIUS:
+            explosion_radius = BOOSTED_EXPLOSION_RADIUS if self.boosted_status == True else BOMB_EXPLOSION_RADIUS
+            if self.radius >= explosion_radius:
                 self.kill()
 
     def explodes(self):
