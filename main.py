@@ -12,7 +12,9 @@ from shot import Shot, Bomb
 
 def main():
     pygame.init()
+    pygame.font.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    font = pygame.font.Font(None, 18)
     clock = pygame.time.Clock()
     FPS = 60
     dt = 0
@@ -30,7 +32,7 @@ def main():
     Shot.containers = (shots, drawable, updatable)
     Bomb.containers = (bombs, drawable, updatable)
     asteroid_field = AsteroidField()
-    player1 = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
     while True:
         log_state()
@@ -69,6 +71,7 @@ def main():
                     player.get_boosted()
         for dr in drawable:
             dr.draw(screen)
+            player.player_ui(screen, font)
         pygame.display.flip()
         dt = clock.tick(FPS) / 1000
 
