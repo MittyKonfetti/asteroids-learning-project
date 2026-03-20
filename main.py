@@ -46,6 +46,7 @@ def main():
                 if player.collides_with(ast):
                     if player.shield_boost_timer > 0: 
                         ast.split()
+                        player.get_score(ast.radius)
                     else:
                         still_alive = player.handle_collision()
                         if not still_alive:
@@ -55,11 +56,13 @@ def main():
             for shot in shots:
                 if shot.collides_with(ast):
                     log_event("asteroid_shot")
+                    player.get_score(ast.radius)
                     shot.shot_kill()
                     ast.split()
             for bomb in bombs:
                 if bomb.collides_with(ast):
                     log_event("asteroid_bombed")
+                    player.get_score(ast.radius)
                     bomb.explodes()
                     ast.bombed()
         for p in powerups:

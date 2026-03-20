@@ -1,7 +1,7 @@
 import pygame
 from circleshape import CircleShape
 from shot import Shot, Bomb
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, ACCELERATE_CD, ACCELERATE_RATE, ACCELERATE_SPAM_TIMER, SHOT_RADIUS, SHOT_KILLED, PLAYER_SHOOT_SPEED, PLAYER_SHOT_CD, PLAYER_MULTISHOT_CD, PLAYER_LIFE_COUNT, BOOST_TIMER, BOOSTED_SHIELD_RADIUS, BOOSTED_SHOT_RADIUS, BOOSTED_MULTISHOT_CD, LIFE_BOOST, SCREEN_HEIGHT, SCREEN_WIDTH, BOMB_RADIUS, BOMB_CD
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, ACCELERATE_CD, ACCELERATE_RATE, ACCELERATE_SPAM_TIMER, SHOT_RADIUS, SHOT_KILLED, PLAYER_SHOOT_SPEED, PLAYER_SHOT_CD, PLAYER_MULTISHOT_CD, PLAYER_LIFE_COUNT, BOOST_TIMER, BOOSTED_SHIELD_RADIUS, BOOSTED_SHOT_RADIUS, BOOSTED_MULTISHOT_CD, LIFE_BOOST, SCREEN_HEIGHT, SCREEN_WIDTH, BOMB_RADIUS, BOMB_CD, SCORE_MULTIPLIER
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -19,6 +19,7 @@ class Player(CircleShape):
         self.accelerate_rate = ACCELERATE_RATE
         self.accelerate_timer = 0
         self.shot_killed = SHOT_KILLED
+        self.score = 0
 
     def star(self):
         start_vector = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -41,8 +42,10 @@ class Player(CircleShape):
     def player_ui(self, screen, font):
         show_multishot_cd = font.render(f"{self.multishot_cd:.1f}", True, "white")
         show_bomb_cd = font.render(f"{self.bomb_cd:.1f}", True, "white")
+        show_score = font.render(f"Score: {self.score:.1f}", True, "white")
         screen.blit(show_multishot_cd, (self.position.x + 25, self.position.y + 5))
         screen.blit(show_bomb_cd, (self.position.x + 25, self.position.y + 20))
+        screen.blit(show_score, (10, 10))
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -147,3 +150,6 @@ class Player(CircleShape):
             self.bomb_boost_timer = BOOST_TIMER
         if type == "white":
             self.lives += LIFE_BOOST
+
+    def get_score(self, asteroid_radius):
+        self.score += asteroid_radius * SCORE_MULTIPLIER
