@@ -1,7 +1,7 @@
 import pygame
 from circleshape import CircleShape
 from shot import Shot, Bomb
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, ACCELERATE_CD, ACCELERATE_RATE, SHOT_RADIUS, PLAYER_SHOOT_SPEED, PLAYER_SHOOT_COOLDOWN_SECONDS, PLAYER_MULTISHOT_CD, PLAYER_LIFE_COUNT, BOOST_TIMER, BOOSTED_SHIELD_RADIUS, BOOSTED_CD, LIFE_BOOST, SCREEN_HEIGHT, SCREEN_WIDTH, BOMB_RADIUS, BOMB_CD
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_TURN_SPEED, PLAYER_SPEED, ACCELERATE_CD, ACCELERATE_RATE, ACCELERATE_SPAM_TIMER, SHOT_RADIUS, SHOT_KILLED, PLAYER_SHOOT_SPEED, PLAYER_SHOT_CD, PLAYER_MULTISHOT_CD, PLAYER_LIFE_COUNT, BOOST_TIMER, BOOSTED_SHIELD_RADIUS, BOOSTED_SHOT_RADIUS, BOOSTED_MULTISHOT_CD, LIFE_BOOST, SCREEN_HEIGHT, SCREEN_WIDTH, BOMB_RADIUS, BOMB_CD
 
 class Player(CircleShape):
     def __init__(self, x, y):
@@ -17,6 +17,8 @@ class Player(CircleShape):
         self.speed = PLAYER_SPEED
         self.accelerate_cd = 0   
         self.accelerate_rate = ACCELERATE_RATE
+        self.accelerate_timer = 0
+        self.shot_killed = SHOT_KILLED
 
     def star(self):
         start_vector = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -72,12 +74,16 @@ class Player(CircleShape):
             self.shield_boost_timer -= dt
         if self.weapon_boost_timer > 0:
             self.weapon_boost_timer -= dt
+        if self.weapon_boost_timer <= 0:
+            self.shot_killed = True
         if self.bomb_boost_timer > 0:
             self.bomb_boost_timer -= dt
         if self.bomb_cd > 0:
             self.bomb_cd -= dt
+        if self.accelerate_timer > 0:
+            self.accelerate_timer -= dt
         if self.accelerate_cd > 0:
-            self.accelerate_cd -= dt
+            self.accelerate_cd -= dt 
             self.speed += ACCELERATE_RATE * dt
         if self.accelerate_cd <= 0:
             if self.speed > PLAYER_SPEED:
@@ -90,8 +96,9 @@ class Player(CircleShape):
         self.position += rotated_with_speed_vector
 
     def accelerate(self):
-        if self.accelerate_cd <= 0:
-            self.accelerate_cd = ACCELERATE_CD
+        if self.accelerate_timer <= 0:
+            self.accelerate_timer = ACCELERATE_SPAM_TIMER
+            self.accelerate_cd = ACCELERATE_CD            
 
     def collides_with(self, other):
         distance = pygame.math.Vector2.distance_to(self.position, other.position)
@@ -111,15 +118,15 @@ class Player(CircleShape):
     def shoot(self):
         if self.cd_timer > 0:
             return
-        cooldown = BOOSTED_CD if self.weapon_boost_timer > 0 else PLAYER_SHOOT_COOLDOWN_SECONDS
-        self.cd_timer = cooldown
-        shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
-        shot.velocity = pygame.Vector2(0, -1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        self.cd_timer = PLAYER_SHOT_CD
+        radius = BOOSTED_SHOT_RADIUS if self.weapon_boost_timer > 0 else SHOT_RADIUS
+        shot = Shot(self.position.x, self.position.y, radius, self.shot_killed)
+        shot.velocity = pygame.Vector2(0, -1).rotate(self.rotation) * PLAYER_SHOOT_SPEED       
 
     def multi_shot(self):
         if self.multishot_cd > 0:
             return
-        cooldown = BOOSTED_CD if self.weapon_boost_timer > 0 else PLAYER_MULTISHOT_CD
+        cooldown = BOOSTED_MULTISHOT_CD if self.weapon_boost_timer > 0 else PLAYER_MULTISHOT_CD
         self.multishot_cd = cooldown
         Shot.multi_shot(self.position, self.rotation)
 
@@ -135,6 +142,7 @@ class Player(CircleShape):
             self.shield_boost_timer = BOOST_TIMER
         if type == "red":
             self.weapon_boost_timer = BOOST_TIMER
+            self.shot_killed = False
         if type == "orange":
             self.bomb_boost_timer = BOOST_TIMER
         if type == "white":

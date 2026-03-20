@@ -44,7 +44,7 @@ def main():
         for ast in asteroids:
             for player in players:
                 if player.collides_with(ast):
-                    if player.shield_boost_timer > 0:
+                    if player.shield_boost_timer > 0: 
                         ast.split()
                     else:
                         still_alive = player.handle_collision()
@@ -55,7 +55,7 @@ def main():
             for shot in shots:
                 if shot.collides_with(ast):
                     log_event("asteroid_shot")
-                    shot.kill()
+                    shot.shot_kill()
                     ast.split()
             for bomb in bombs:
                 if bomb.collides_with(ast):

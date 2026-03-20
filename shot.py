@@ -1,25 +1,34 @@
 import pygame
 from circleshape import CircleShape
-from constants import LINE_WIDTH, BOMB_TIMER, BOMB_EXPLOSION_RADIUS, BOOSTED_EXPLOSION_RADIUS, BOMB_EXPLOSION_INCREMENT, SHOT_RADIUS, PLAYER_SHOOT_SPEED
+from constants import LINE_WIDTH, BOMB_TIMER, BOMB_EXPLOSION_RADIUS, BOOSTED_EXPLOSION_RADIUS, BOMB_EXPLOSION_INCREMENT, SHOT_RADIUS, SHOT_KILLED, PLAYER_SHOOT_SPEED
 
 class Shot(CircleShape):
-    def __init__(self, x, y, radius):
+    def __init__(self, x, y, radius, shot_killed):
         super().__init__(x, y, radius)
+        self.shot_killed = shot_killed
 
     def draw(self, screen):
         pygame.draw.circle(screen, "red", self.position, self.radius, LINE_WIDTH)
+        if self.shot_killed == False:
+            pygame.draw.circle(screen, "red", self.position, self.radius, 0)
+            pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH * 2)
 
     def update(self, dt):
         self.position += (self.velocity * dt)
 
     def multi_shot(position, rotation):
         for i in range(5):
-            multishot = Shot(position.x, position.y, SHOT_RADIUS)
+            multishot = Shot(position.x, position.y, SHOT_RADIUS, SHOT_KILLED)
             multishot.velocity = pygame.Vector2(0, -1).rotate(rotation + (i * 72)) * PLAYER_SHOOT_SPEED
+
+    def shot_kill(self):
+        if self.shot_killed == True:
+            self.kill()
+        return
 
 class Bomb(Shot):
     def __init__(self, x, y, radius, rotation, boost_status):
-        super().__init__(x, y, radius)
+        super().__init__(x, y, radius, SHOT_KILLED)
         self.timer = BOMB_TIMER
         self.rotation = rotation
         self.boosted_status = boost_status
