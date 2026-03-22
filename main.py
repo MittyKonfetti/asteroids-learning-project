@@ -1,6 +1,6 @@
 import pygame
 import sys
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, WINNING_SCORE
 from logger import log_state, log_event
 from player1 import Player
 from asteroid import Asteroid
@@ -13,8 +13,10 @@ from shot import Shot, Bomb
 def main():
     pygame.init()
     pygame.font.init()
+    game_won = False
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    font = pygame.font.Font(None, 18)
+    ui_font = pygame.font.Font(None, 18)
+    victory_messsage_font = pygame.font.Font(None, 52)
     clock = pygame.time.Clock()
     FPS = 60
     dt = 0
@@ -34,7 +36,7 @@ def main():
     asteroid_field = AsteroidField()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-    while True:
+    while game_won == False:
         log_state()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -74,9 +76,41 @@ def main():
                     p.kill()
         for dr in drawable:
             dr.draw(screen)
-            player.player_ui(screen, font)
+            player.player_ui(screen, ui_font)
         pygame.display.flip()
         dt = clock.tick(FPS) / 1000
+        if player.score > WINNING_SCORE:
+            game_won = True
+        if game_won == True:
+            victory_message_timer = 10
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        return
+                asteroid_field.win_status = True
+                player.position = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+                player.velocity = pygame.Vector2(0, 0)
+                player.multishot_cd = 0
+                player.rotate(dt)
+                Shot.multi_shot(player.position, player.rotation)
+                updatable.update(dt)
+                asteroid_field.spawn_timer -= dt
+                screen.fill("black")
+                for ast in asteroids:
+                    for shot in shots:
+                        if ast.collides_with(shot):
+                            ast.split()
+                for dr in drawable:
+                    dr.draw(screen)
+                if victory_message_timer > 0:
+                    victory_message_timer -= dt
+                    victory_message = victory_messsage_font.render("Glory to the Victor!", True, "gold")
+                    vic_rect = victory_message.get_rect()
+                    vic_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
+                    screen.blit(victory_message, vic_rect)
+                pygame.display.flip()
+                dt = clock.tick(FPS) / 1000
+
 
 if __name__ == "__main__":
     main()
