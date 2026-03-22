@@ -20,6 +20,7 @@ class Player(CircleShape):
         self.accelerate_timer = 0
         self.shot_killed = SHOT_KILLED
         self.score = 0
+        self.ui_controls_timer = 20
 
     def star(self):
         start_vector = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -39,13 +40,19 @@ class Player(CircleShape):
         if self.shield_boost_timer > 0:
             pygame.draw.circle(screen, "darkgreen", self.position, BOOSTED_SHIELD_RADIUS, LINE_WIDTH)
     
-    def player_ui(self, screen, font):
-        show_multishot_cd = font.render(f"{self.multishot_cd:.1f}", True, "white")
-        show_bomb_cd = font.render(f"{self.bomb_cd:.1f}", True, "white")
-        show_score = font.render(f"Score: {self.score:.1f}", True, "white")
+    def player_ui(self, screen, ui_font, dt):
+        self.ui_controls_timer -= dt
+        show_controls = ui_font.render("Arrow keys to move. Weapons: QWE. Dash: Space", True, "white")
+        controls_rect = show_controls.get_rect()
+        controls_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 3)
+        show_multishot_cd = ui_font.render(f"{self.multishot_cd:.1f}", True, "white")
+        show_bomb_cd = ui_font.render(f"{self.bomb_cd:.1f}", True, "white")
+        show_score = ui_font.render(f"Score: {self.score:.1f}", True, "white")
         screen.blit(show_multishot_cd, (self.position.x + 25, self.position.y + 5))
         screen.blit(show_bomb_cd, (self.position.x + 25, self.position.y + 20))
         screen.blit(show_score, (10, 10))
+        if self.ui_controls_timer > 0:
+            screen.blit(show_controls, controls_rect)
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -97,6 +104,10 @@ class Player(CircleShape):
         rotated_vector = unit_vector.rotate(self.rotation)
         rotated_with_speed_vector = rotated_vector * self.speed * dt
         self.position += rotated_with_speed_vector
+        if self.position.x < 0 - self.radius or self.position.x > SCREEN_WIDTH + self.radius:
+            self.rotation += 180
+        if self.position.y < 0 - self.radius or self.position.y > SCREEN_HEIGHT + self.radius:
+            self.rotation += 180
 
     def accelerate(self):
         if self.accelerate_timer <= 0:

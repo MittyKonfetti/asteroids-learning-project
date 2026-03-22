@@ -76,7 +76,7 @@ def main():
                     p.kill()
         for dr in drawable:
             dr.draw(screen)
-            player.player_ui(screen, ui_font)
+            player.player_ui(screen, ui_font, dt)
         pygame.display.flip()
         dt = clock.tick(FPS) / 1000
         if player.score > WINNING_SCORE:
