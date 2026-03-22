@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from logger import log_event
 from circleshape import CircleShape
 from constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
@@ -7,9 +8,19 @@ from constants import LINE_WIDTH, ASTEROID_MIN_RADIUS
 class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
+        self.radii = []
+        for i in range(20):
+            rad = random.randint(self.radius - 5, self.radius +5)
+            angle_deg = i * (360 / 20)
+            angle_rad = math.radians(angle_deg)
+            vector = pygame.Vector2(math.cos(angle_rad) * rad, math.sin(angle_rad) * rad)
+            self.radii.append(vector)
 
     def draw(self, screen):
-        pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH)
+        radii_to_draw = []
+        for r in self.radii:
+            radii_to_draw.append(self.position + r)
+        pygame.draw.polygon(screen, "white", radii_to_draw, 2)
 
     def update(self, dt):
         self.position += (self.velocity * dt)
